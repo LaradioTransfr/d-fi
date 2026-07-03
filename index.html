@@ -1,120 +1,196 @@
-import tkinter as tk
-from tkinter import messagebox
-import random
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ CHALLENGE CONTROL GIGA EDITION ⚠️</title>
+    <style>
+        body {
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #252538;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 450px;
+            border: 2px solid #313244;
+        }
+        h1 {
+            color: #ff0055;
+            margin-top: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        .chrono {
+            font-size: 18px;
+            color: #a6e3a1;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .box-defi {
+            background-color: #313244;
+            color: #f9e2af;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff0055;
+        }
+        .boutons {
+            display: none;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .btn-reussi { background-color: #a6e3a1; color: #11111b; }
+        .btn-echoue { background-color: #f38ba8; color: #11111b; }
+        .score-board {
+            font-size: 14px;
+            color: #89b4fa;
+            border-top: 1px solid #313244;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
 
-class AppliDefisGigantesque:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("⚠️ CHALLENGE CONTROL GIGA EDITION ⚠️")
-        self.root.geometry("500x350")
-        self.root.configure(bg="#1e1e2e")
-        self.root.attributes("-topmost", True)
-        
-        self.score = 0
-        self.defis_realises = 0
-        self.max_defis_par_session = 10 # Demande s'il veut continuer tous les 10 défis
-        self.temps_restant = 5
-        
-        # Génération automatique de milliers de défis
-        self.LISTE_DEFIS = self.generer_2000_defis()
-        
-        # --- INTERFACE ---
-        self.label_titre = tk.Label(root, text="CHALLENGE CONTROL", font=("Arial", 16, "bold"), fg="#ff0055", bg="#1e1e2e")
-        self.label_titre.pack(pady=10)
-        
-        self.label_chrono = tk.Label(root, text="Initialisation...", font=("Arial", 12), fg="#cdd6f4", bg="#1e1e2e")
-        self.label_chrono.pack(pady=5)
-        
-        self.label_defi = tk.Label(root, text="Préparation de la giga liste...", font=("Arial", 11, "italic"), fg="#f9e2af", bg="#313244", wraplength=450, height=5, width=50)
-        self.label_defi.pack(pady=15)
-        
-        self.frame_boutons = tk.Frame(root, bg="#1e1e2e")
-        self.frame_boutons.pack(pady=5)
-        
-        self.btn_reussi = tk.Button(self.frame_boutons, text="✅ Réussi (+10 pts)", font=("Arial", 10, "bold"), fg="#ffffff", bg="#a6e3a1", command=self.defi_reussi)
-        self.btn_echoue = tk.Button(self.frame_boutons, text="❌ Échoué", font=("Arial", 10, "bold"), fg="#ffffff", bg="#f38ba8", command=self.defi_echoue)
-        
-        self.label_score = tk.Label(root, text="Score : 0 pts | Défis : 0", font=("Arial", 11, "bold"), fg="#89b4fa", bg="#1e1e2e")
-        self.label_score.pack(side="bottom", pady=10)
-        
-        self.actualiser_chrono()
+<div class="container">
+    <h1>⚠️ CHALLENGE CONTROL ⚠️</h1>
+    <div class="chrono" id="chrono">Initialisation...</div>
+    <div class="box-defi" id="box-defi">Préparation de la giga liste...</div>
+    
+    <div class="boutons" id="zone-boutons">
+        <button class="btn-reussi" onclick="defiReussi()">✅ Réussi (+10 pts)</button>
+        <button class="btn-echoue" onclick="defiEchoue()">❌ Échoué</button>
+    </div>
+    
+    <div class="score-board" id="score-board">
+        Score : 0 pts | Défis terminés : 0
+    </div>
+</div>
 
-    def generer_2000_defis(self):
-        # Des verbes, des actions et des contraintes pour créer des milliers de combinaisons
-        actions = [
+<script>
+    let score = 0;
+    let defisRealises = 0;
+    const maxDefisParSession = 10;
+    let tempsRestant = 5;
+    let listeDefis = [];
+    let horloge;
+
+    function generer2000Defis() {
+        const actions = [
             "ne dis plus le mot 'OUI' ni 'NON'", "parle uniquement en chuchotant", 
             "place le mot 'Banane' de façon naturelle", "parle avec un accent super bizarre",
-            "interdiction absolue de sauter", "fais un bruit de klaxon", 
+            "interdiction absolue de sauter dans ton jeu", "fais un bruit de klaxon", 
             "répète la fin de toutes tes phrases", "parle comme un robot",
             "ferme un œil", "garde tes mains au-dessus de la tête",
             "chante au lieu de parler", "ajoute 'wesh' ou 'du coup' partout",
             "fais semblant d'être hyper fatigué", "n'utilise pas ta touche préférée",
             "parle uniquement en faisant des rimes", "cite un streamer connu"
-        ]
+        ];
         
-        contraintes = [
+        const contraintes = [
             "pendant les 2 prochaines minutes !", "pendant les 60 prochaines secondes.",
             "chaque fois que tu touches ton clavier !", "à chaque fois que tu gagnes un point.",
             "pendant tout le prochain round !", "jusqu'à la fin du chrono.",
             "dès que tu ouvres une nouvelle page !", "à la prochaine phrase que tu dis."
-        ]
+        ];
+
+        const bonus = ["", " (Et fais-le sérieusement !)", " (Double score si réussi !)", " (C'est un giga défi !)"];
         
-        defis_uniques = set()
-        # On fait tourner la machine pour combiner tout ça jusqu'à avoir plus de 2000 défis
-        while len(defis_uniques) < 2500:
-            act = random.choice(actions)
-            con = random.choice(contraintes)
-            # Petit ajout aléatoire pour varier encore plus
-            bonus = random.choice(["", " (Et fais-le sérieusement !)", " (Double score si réussi !)", " (C'est un giga défi !)"])
-            defis_uniques.add(f"👉 {act} {con}{bonus}")
-            
-        return list(defis_uniques)
+        let ensembleDefis = new Set();
+        while(ensembleDefis.size < 2500) {
+            let act = actions[Math.floor(Math.random() * actions.length)];
+            let con = contraintes[Math.floor(Math.random() * contraintes.length)];
+            let bon = bonus[Math.floor(Math.random() * bonus.length)];
+            ensembleDefis.add(`👉 ${act} ${con}${bon}`);
+        }
+        return Array.from(ensembleDefis);
+    }
 
-    def actualiser_chrono(self):
-        if self.temps_restant > 0:
-            self.label_chrono.config(text=f"Prochain défi dans : {self.temps_restant}s", fg="#cdd6f4")
-            self.temps_restant -= 1
-            self.root.after(1000, self.actualiser_chrono)
-        else:
-            self.declencher_defi()
+    function actualiserChrono() {
+        if (tempsRestant > 0) {
+            document.getElementById("chrono").innerText = `Prochain défi dans : ${tempsRestant}s`;
+            document.getElementById("chrono").style.color = "#cdd6f4";
+            tempsRestant--;
+            horloge = setTimeout(actualiserChrono, 1000);
+        } else {
+            declencherDefi();
+        }
+    }
 
-    def declencher_defi(self):
-        self.label_chrono.config(text="⚠️ NOUVEAU DÉFI ! ⚠️", fg="#ff0055")
+    function declencherDefi() {
+        document.getElementById("chrono").innerText = "⚠️ NOUVEAU DÉFI ! ⚠️";
+        document.getElementById("chrono").style.color = "#ff0055";
         
-        # Pioche un défi dans notre giga liste
-        defi_choisi = random.choice(self.LISTE_DEFIS)
-        self.label_defi.config(text=defi_choisi, font=("Arial", 11, "bold"), fg="#ff0055")
+        let defiChoisi = listeDefis[Math.floor(Math.random() * listeDefis.length)];
+        document.getElementById("box-defi").innerText = defiChoisi;
         
-        self.btn_reussi.pack(side="left", padx=10)
-        self.btn_echoue.pack(side="right", padx=10)
+        document.getElementById("zone-boutons").style.display = "flex";
+    }
 
-    def defi_reussi(self):
-        self.score += 10
-        self.defis_realises += 1
-        self.verifier_continuer()
+    function defiReussi() {
+        score += 10;
+        defisRealises++;
+        verifierContinuer();
+    }
 
-    def defi_echoue(self):
-        self.defis_realises += 1
-        self.verifier_continuer()
+    function defiEchoue() {
+        defisRealises++;
+        verifierContinuer();
+    }
 
-    def verifier_continuer(self):
-        self.label_score.config(text=f"Score : {self.score} pts | Défis : {self.defis_realises}")
-        self.btn_reussi.pack_forget()
-        self.btn_echoue.pack_forget()
+    function verifierContinuer() {
+        document.getElementById("score-board").innerText = `Score : ${score} pts | Défis terminés : ${defisRealises}`;
+        document.getElementById("zone-boutons").style.display = "none";
         
-        # Si on a atteint la limite de la session, on demande s'il veut continuer
-        if self.defis_realises % self.max_defis_par_session == 0:
-            reponse = messagebox.askyesno("Continuer ?", f"Tu as fait {self.defis_realises} défis ! Veux-tu d'autres défis ?")
-            if not reponse:
-                self.label_defi.config(text="Session terminée ! Quel giga score !", fg="#a6e3a1")
-                self.label_chrono.config(text="STOP", fg="#f38ba8")
-                return # Arrête l'application ici
+        if (defisRealises % maxDefisParSession === 0) {
+            let reponse = confirm(`Tu as fait ${defisRealises} défis ! Veux-tu d'autres défis ?`);
+            if (!reponse) {
+                document.getElementById("box-defi").innerText = "Session terminée ! Quel giga score !";
+                document.getElementById("chrono").innerText = "STOP";
+                return;
+            }
+        }
         
-        self.label_defi.config(text="Bien joué ! En attente du prochain...", font=("Arial", 11, "italic"), fg="#f9e2af")
-        self.temps_restant = 5 # Temps avant le prochain
-        self.actualiser_chrono()
+        document.getElementById("box-defi").innerText = "Bien joué ! En attente du prochain...";
+        tempsRestant = 5;
+        actualiserChrono();
+    }
 
-if __name__ == "__main__":
-    fenetre = tk.Tk()
-    app = AppliDefisGigantesque(fenetre)
-    fenetre.mainloop()
+    window.onload = function() {
+        listeDefis = generer2000Defis();
+        document.getElementById("box-defi").innerText = "Prêt !";
+        tempsRestant = 5;
+        actualiserChrono();
+    };
+</script>
+
+</body>
+</html>
