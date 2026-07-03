@@ -83,7 +83,7 @@
 <div class="container">
     <h1>⚠️ CHALLENGE CONTROL ⚠️</h1>
     <div class="chrono" id="chrono">Initialisation...</div>
-    <div class="box-defi" id="box-defi">Préparation de la giga liste...</div>
+    <div class="box-defi" id="box-defi">Prépare-toi...</div>
     
     <div class="boutons" id="zone-boutons">
         <button class="btn-reussi" onclick="defiReussi()">✅ Réussi (+10 pts)</button>
@@ -100,38 +100,35 @@
     let defisRealises = 0;
     const maxDefisParSession = 10;
     let tempsRestant = 5;
-    let listeDefis = [];
     let horloge;
 
-    function generer2000Defis() {
-        const actions = [
-            "ne dis plus le mot 'OUI' ni 'NON'", "parle uniquement en chuchotant", 
-            "place le mot 'Banane' de façon naturelle", "parle avec un accent super bizarre",
-            "interdiction absolue de sauter dans ton jeu", "fais un bruit de klaxon", 
-            "répète la fin de toutes tes phrases", "parle comme un robot",
-            "ferme un œil", "garde tes mains au-dessus de la tête",
-            "chante au lieu de parler", "ajoute 'wesh' ou 'du coup' partout",
-            "fais semblant d'être hyper fatigué", "n'utilise pas ta touche préférée",
-            "parle uniquement en faisant des rimes", "cite un streamer connu"
-        ];
-        
-        const contraintes = [
-            "pendant les 2 prochaines minutes !", "pendant les 60 prochaines secondes.",
-            "chaque fois que tu touches ton clavier !", "à chaque fois que tu gagnes un point.",
-            "pendant tout le prochain round !", "jusqu'à la fin du chrono.",
-            "dès que tu ouvres une nouvelle page !", "à la prochaine phrase que tu dis."
-        ];
+    // Les listes pour fabriquer des milliers de défis en direct
+    const actions = [
+        "ne dis plus le mot 'OUI' ni 'NON'", "parle uniquement en chuchotant", 
+        "place le mot 'Banane' de façon naturelle", "parle avec un accent super bizarre",
+        "interdiction absolue de sauter dans ton jeu", "fais un bruit de klaxon", 
+        "répète la fin de toutes tes phrases", "parle comme un robot",
+        "ferme un œil", "garde tes mains au-dessus de la tête",
+        "chante au lieu de parler", "ajoute 'wesh' ou 'du coup' partout",
+        "fais semblant d'être hyper fatigué", "n'utilise pas ta touche préférée",
+        "parle uniquement en faisant des rimes", "cite un streamer connu"
+    ];
+    
+    const contraintes = [
+        "pendant les 2 prochaines minutes !", "pendant les 60 prochaines secondes.",
+        "chaque fois que tu touches ton clavier !", "à chaque fois que tu gagnes un point.",
+        "pendant tout le prochain round !", "jusqu'à la fin du chrono.",
+        "dès que tu ouvres une nouvelle page !", "à la prochaine phrase que tu dis."
+    ];
 
-        const bonus = ["", " (Et fais-le sérieusement !)", " (Double score si réussi !)", " (C'est un giga défi !)"];
-        
-        let ensembleDefis = new Set();
-        while(ensembleDefis.size < 2500) {
-            let act = actions[Math.floor(Math.random() * actions.length)];
-            let con = contraintes[Math.floor(Math.random() * contraintes.length)];
-            let bon = bonus[Math.floor(Math.random() * bonus.length)];
-            ensembleDefis.add(`👉 ${act} ${con}${bon}`);
-        }
-        return Array.from(ensembleDefis);
+    const bonus = ["", " (Et fais-le sérieusement !)", " (Double score si réussi !)", " (C'est un giga défi !)"];
+
+    // Génère UN SEUL défi au hasard instantanément
+    function obtenirUnDefiAleatoire() {
+        let act = actions[Math.floor(Math.random() * actions.length)];
+        let con = contraintes[Math.floor(Math.random() * contraintes.length)];
+        let bon = bonus[Math.floor(Math.random() * bonus.length)];
+        return `👉 ${act} ${con}${bon}`;
     }
 
     function actualiserChrono() {
@@ -149,8 +146,8 @@
         document.getElementById("chrono").innerText = "⚠️ NOUVEAU DÉFI ! ⚠️";
         document.getElementById("chrono").style.color = "#ff0055";
         
-        let defiChoisi = listeDefis[Math.floor(Math.random() * listeDefis.length)];
-        document.getElementById("box-defi").innerText = defiChoisi;
+        // On pioche le défi en direct sans ralentir le PC
+        document.getElementById("box-defi").innerText = obtenirUnDefiAleatoire();
         
         document.getElementById("zone-boutons").style.display = "flex";
     }
@@ -171,7 +168,7 @@
         document.getElementById("zone-boutons").style.display = "none";
         
         if (defisRealises % maxDefisParSession === 0) {
-            let reponse = confirm(`Tu as fait ${defisRealises} défis ! Veux-tu d'autres défis ?`);
+            let reponse = confirm(`Tu as fait {defisRealises} défis ! Veux-tu d'autres défis ?`);
             if (!reponse) {
                 document.getElementById("box-defi").innerText = "Session terminée ! Quel giga score !";
                 document.getElementById("chrono").innerText = "STOP";
@@ -185,8 +182,6 @@
     }
 
     window.onload = function() {
-        listeDefis = generer2000Defis();
-        document.getElementById("box-defi").innerText = "Prêt !";
         tempsRestant = 5;
         actualiserChrono();
     };
